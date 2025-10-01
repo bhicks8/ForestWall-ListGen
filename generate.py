@@ -63,13 +63,16 @@ def save_combined_list(combined_list, output_path, output_name):
 
     ipv4_list = [item for item in combined_list if '.' in item]
     ipv6_list = [item for item in combined_list if ':' in item]
+
+    if len(ipv4_list) > 0:
+        with open(ipv4_path, 'w') as file:
+            for item in sorted(ipv4_list):
+                file.write(f"{item}\n")
     
-    with open(ipv4_path, 'w') as file:
-        for item in sorted(ipv4_list):
-            file.write(f"{item}\n")
-    with open(ipv6_path, 'w') as file:
-        for item in sorted(ipv6_list):
-            file.write(f"{item}\n")
+    if len(ipv6_list) > 0:
+        with open(ipv6_path, 'w') as file:
+            for item in sorted(ipv6_list):
+                file.write(f"{item}\n")
 
 def main(config_file, output_dir):
     if not config_file or not output_dir:
