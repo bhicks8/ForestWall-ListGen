@@ -49,10 +49,6 @@ def passes_delete_check(base_path, files, allowed: bool) -> bool:
     # since glob.glob should return normalized paths, but just in case.
     current_files = set(normalize_paths(files, "."))
 
-    print(head_files)
-    print(current_files)
-    print(head_files - current_files)
-
     for f in head_files - current_files:
         print(f"{f}: Deleted")
         if not allowed:
