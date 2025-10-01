@@ -1,0 +1,35 @@
+# Holds list definitions that will be queried by generate.py
+# This is a good source for public lists: https://github.com/hslatman/awesome-threat-intelligence?tab=readme-ov-file
+
+lists: # A list of lists to generate
+  - name: "geo-australia"
+    description: "A list of all IP ranges allocated to Australia."
+    sources:
+      - url: https://github.com/inet-ip-info/WorldIPv4Map/releases/latest/download/all-ipv4cidr.tsv.gz
+        format: "inet-ip-info-geo" # Custom format to parse inet-ip-info TSV files
+        format_options:
+          country: "AU" # Country code to filter by, e.g. "US", "GB", "AU"
+        compression: "gzip" # Optional, can be "gzip" or "none". Default is "none".
+
+  - name: "blackhole"
+    description: "A list of known ad/tracker/malware domains."
+    exclude: [] # A list of domains to exclude from the final list. Like a whitelist.
+    sources:
+      - url: https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt
+        format: "hostlist"
+      - url: https://www.spamhaus.org/drop/drop_v4.json
+        format: "spamhaus-json"
+      - url: https://www.spamhaus.org/drop/drop_v6.json
+        format: "spamhaus-json"
+
+  # Same as above but excludes private IP ranges. Useful for outbound filtering.
+  - name: "blackhole-exclude-private"
+    description: "A list of known ad/tracker/malware domains."
+    exclude: [10.0.0.0/8, 100.64.0.0/10, 172.16.0.0/12, 192.168.0.0/16, 198.18.0.0/15]
+    sources:
+      - url: https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt
+        format: "hostlist"
+      - url: https://www.spamhaus.org/drop/drop_v4.json
+        format: "spamhaus-json"
+      - url: https://www.spamhaus.org/drop/drop_v6.json
+        format: "spamhaus-json"

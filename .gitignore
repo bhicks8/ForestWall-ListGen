@@ -1,3 +1,6 @@
+# Our generated .txt files are not to be tracked by git
+*.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
