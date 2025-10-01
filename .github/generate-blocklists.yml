@@ -1,0 +1,53 @@
+name: Generate Blocklists
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggering
+  push:
+    branches:
+      - main
+    paths:
+      - 'lists.yaml'
+      - 'generate.py'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      
+      - name: Install dependencies
+        run: |
+          pip install requests PyYAML
+      
+      - name: Create lists directory
+        run: mkdir -p lists
+      
+      - name: Generate lists
+        run: python generate.py lists.yaml lists
+      
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --quiet lists/ || echo "changed=true" >> $GITHUB_OUTPUT
+      
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add lists/
+          git commit -m "Update blocklists - $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
