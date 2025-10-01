@@ -108,9 +108,8 @@ def main(config_file, output_dir):
             except Exception as e:
                 print(f"Error fetching or parsing list from {url}: {e}")
 
-        output_path = os.path.join(output_dir, name + ".txt")
-        save_combined_list(combined_set, output_path, name)
-        print(f"Combined list {name} saved to {output_path} with {len(combined_set)} unique entries.")
+        save_combined_list(combined_set, output_dir, name)
+        print(f"Combined list {name} saved to {output_dir} with {len(combined_set)} unique entries.")
 
 if __name__ == "__main__":
     if len(os.sys.argv) != 3:
