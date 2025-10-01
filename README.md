@@ -78,6 +78,7 @@ python generate.py <config_file> <output_dir>
 ```
 
 Example:
+
 ```bash
 python generate.py lists.yaml .
 ```

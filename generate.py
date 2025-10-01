@@ -3,8 +3,8 @@
 # Simple script that:
 #    1. Queries lists from lists.yaml
 #    2. Downloads each list file
-#    3. Generates a single combined list file, removing duplicates
-# Usage: python generate.py <config_file> <output_dir>
+#    3. Generates a combined list file, removing duplicates
+#    4. Lists are stored as .ipv4.txt and .ipv6.txt for convenience.
 # Intended for use as part of GitHub Actions workflow, but can be run manually as well.
 
 import yaml
@@ -12,6 +12,12 @@ import json
 import requests
 import gzip
 import os
+
+cli_help = """
+Usage: python generate.py <config_file> <output_dir>
+  config_file: Path to the YAML configuration file (e.g., 'lists.yaml')
+  output_dir: Directory to save the generated list files (e.g., 'lists')
+"""
 
 def load_lists_config(config_path):
     with open(config_path, 'r') as file:
@@ -51,9 +57,18 @@ def get_list(url, compression, strategy, strategy_options):
 
     return parse_list(content, strategy, strategy_options)
 
-def save_combined_list(combined_list, output_path):
-    with open(output_path, 'w') as file:
-        for item in sorted(combined_list):
+def save_combined_list(combined_list, output_path, output_name):
+    ipv4_path = output_path + "/" + output_name + ".ipv4.txt"
+    ipv6_path = output_path + "/" + output_name + ".ipv6.txt"
+
+    ipv4_list = [item for item in combined_list if '.' in item]
+    ipv6_list = [item for item in combined_list if ':' in item]
+    
+    with open(ipv4_path, 'w') as file:
+        for item in sorted(ipv4_list):
+            file.write(f"{item}\n")
+    with open(ipv6_path, 'w') as file:
+        for item in sorted(ipv6_list):
             file.write(f"{item}\n")
 
 def main(config_file, output_dir):
@@ -94,12 +109,12 @@ def main(config_file, output_dir):
                 print(f"Error fetching or parsing list from {url}: {e}")
 
         output_path = os.path.join(output_dir, name + ".txt")
-        save_combined_list(combined_set, output_path)
+        save_combined_list(combined_set, output_path, name)
         print(f"Combined list {name} saved to {output_path} with {len(combined_set)} unique entries.")
 
 if __name__ == "__main__":
     if len(os.sys.argv) != 3:
-        print("Usage: python generate.py <config_file> <output_dir>")
+        print(cli_help)
         os.sys.exit(1)
 
     config_file = os.sys.argv[1]

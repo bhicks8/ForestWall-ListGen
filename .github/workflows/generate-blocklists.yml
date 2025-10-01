@@ -5,6 +5,12 @@ on:
     # Run daily at 2 AM UTC
     - cron: '0 2 * * *'
   workflow_dispatch: # Allow manual triggering
+    inputs:
+      allow_deletions:
+        description: 'Allow deletions of existing lists'
+        required: false
+        default: 'false'
+        type: boolean
   push:
     branches:
       - main
@@ -39,7 +45,7 @@ jobs:
         run: python generate.py lists.yaml lists
 
       - name: Verify 10% drift limit
-        run: python verify.py 10.0
+        run: python verify.py lists 10.0 ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.allow_deletions || 'false' }}
 
       - name: Check for changes
         id: check_changes
