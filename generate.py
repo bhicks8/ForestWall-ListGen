@@ -58,20 +58,28 @@ def get_list(url, compression, strategy, strategy_options):
     return parse_list(content, strategy, strategy_options)
 
 def save_combined_list(combined_list, output_path, output_name):
+    combined_path = output_path + "/" + output_name + ".combined.txt"
+    
     ipv4_path = output_path + "/" + output_name + ".ipv4.txt"
     ipv6_path = output_path + "/" + output_name + ".ipv6.txt"
 
-    ipv4_list = [item for item in combined_list if '.' in item]
-    ipv6_list = [item for item in combined_list if ':' in item]
+    sorted_list = sorted(combined_list)
+    ipv4_list = [item for item in sorted_list if '.' in item]
+    ipv6_list = [item for item in sorted_list if ':' in item]
+
+    if len (combined_list) > 0:
+        with open(combined_path, 'w') as file:
+            for item in sorted_list:
+                file.write(f"{item}\n")
 
     if len(ipv4_list) > 0:
         with open(ipv4_path, 'w') as file:
-            for item in sorted(ipv4_list):
+            for item in ipv4_list:
                 file.write(f"{item}\n")
     
     if len(ipv6_list) > 0:
         with open(ipv6_path, 'w') as file:
-            for item in sorted(ipv6_list):
+            for item in ipv6_list:
                 file.write(f"{item}\n")
 
 def main(config_file, output_dir):
