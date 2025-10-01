@@ -23,23 +23,27 @@ This tool pre-generates consolidated, deduplicated blocklists from multiple thre
 
 ### Key Benefits
 
-**Centralized List Management**
+#### Centralized List Management
+
 - Combine multiple threat feeds into curated, purpose-built lists
 - One source of truth for all ForestWall instances that you manage.
 - Version control and audit trails through Git history
 
-**Operational Efficiency**
+#### Operational Efficiency
+
 - Update blocklists independently from firewall deployments
 - No need to rebuild and redeploy router images for list updates
 - Reduce bandwidth: fetch one consolidated list instead of multiple upstream sources per router
 - Less computational overhead: Routers dont need to scan and consolidate lists on their own. The hard work is already done.
 
-**Security & Transparency**
+#### Security & Transparency
+
 - Pre-process and validate lists in CI/CD before making them available
 - Review changes before they reach production routers
 - Minimize attack surface on edge routers (they fetch simple text files, not complex parsers)
 
-**Flexibility**
+#### Flexibility
+
 - Different ForestWall instances can subscribe to different list combinations
 - Easy rollback by hosting multiple list versions
 - Geographic filtering and custom exclusions tailored to your needs
@@ -58,14 +62,14 @@ This tool pre-generates consolidated, deduplicated blocklists from multiple thre
 
 #### GitHub / DevOps
 
-This repo includes a pre-commit hook that runs `generate.py` and stores resulting lists in `lists/*.txt`. Each line holds a valid CIDR.
+This repo includes workflow that runs `generate.py` and stores resulting lists in `lists/*.txt`. Each line in each file holds a valid CIDR.
 
 You may:
 
 1. Link to the provided lists, if they suite your needs.
 2. Fork the repository to modify `lists.yaml` and either:
-    1. Leverage the same git hook capability to generate and add your lists.
-    2. Remove the githook, and publish to a web host of your choice using CI/CD.
+    1. Leverage the workflow capability to generate and add your lists.
+    2. Remove the workflow, and publish to a web host of your choice using CI/CD.
 
 #### Command Line
 

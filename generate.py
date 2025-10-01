@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Simple script that:
 #    1. Queries lists from lists.yaml
 #    2. Downloads each list file
@@ -42,8 +44,10 @@ def get_list(url, compression, strategy, strategy_options):
     
     if compression == "gzip":
         content = gzip.decompress(response.content).decode('utf-8')
-    else:
+    elif compression == "none":
         content = response.text
+    else:
+        raise ValueError(f"Unknown compression type: {compression}")
 
     return parse_list(content, strategy, strategy_options)
 

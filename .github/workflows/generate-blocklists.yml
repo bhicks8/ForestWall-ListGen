@@ -37,7 +37,10 @@ jobs:
       
       - name: Generate lists
         run: python generate.py lists.yaml lists
-      
+
+      - name: Verify 10% drift limit
+        run: python verify.py 10.0
+
       - name: Check for changes
         id: check_changes
         run: |
