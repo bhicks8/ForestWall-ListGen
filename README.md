@@ -94,6 +94,10 @@ This reads the configuration from `lists.yaml` and outputs generated list files 
 1. Update `/etc/conf.d/forestwall/nft-lists.conf` with a mapping of nftables set => list URL.
 2. Ensure you have a `/etc/periodic/daily.d/load-nftlists.sh` script (included by default).
 
+#### Other Firewalls
+
+The resulting lists are likely compatible with other platforms like OpnSense, etc. Just point them at the files under `lists/`.
+
 ## Configuration
 
 Lists are defined in `lists.yaml`. Each list can have:
