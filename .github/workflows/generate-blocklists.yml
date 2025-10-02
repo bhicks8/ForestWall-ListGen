@@ -2,15 +2,16 @@ name: Generate Blocklists
 
 on:
   schedule:
-    # Run daily at 2 AM UTC
+    # Run daily at 2 AM UTC, and 8 PM UTC
     - cron: '0 2 * * *'
+    - cron: '0 20 * * *'
   workflow_dispatch: # Allow manual triggering
     inputs:
       allow_deletions:
         description: 'Allow deletions of existing lists'
         required: false
-        default: false
-        type: boolean
+        default: 'false'
+        type: string
   push:
     branches:
       - main
