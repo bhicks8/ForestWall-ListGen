@@ -2,8 +2,30 @@
 # This is a good source for public lists: https://github.com/hslatman/awesome-threat-intelligence?tab=readme-ov-file
 
 lists: # A list of lists to generate
+  - name: dns-whitelist
+    description: "A list of known good domains to exclude from DNS blocking."
+    dedupe: "domain" # Reverse prefix tree deduplication and validation
+    output_format: "none" # Don't save this list, just use it for exclusions.
+    sources:
+      - url: src-lists/dns.whitelist.txt # Local file.
+        format: "hostlist"
+      - url: https://raw.githubusercontent.com/GoodnessJSON/PiHole-Whitelist/refs/heads/master/lists/optional-list.txt
+        format: "hostlist"
+      - url: https://raw.githubusercontent.com/GoodnessJSON/PiHole-Whitelist/refs/heads/master/lists/whitelist.txt
+        format: "hostlist"
+
+  - name: "private-ip"
+    description: "A list of all private IP ranges."
+    dedupe: "radix" # Use IP-specific deduplication and validation
+    output_format: "none" # Used for exclusions only, so no output.
+    sources:
+      - url: src-lists/private.ip.txt # Local file.
+        format: "hostlist"
+
+    # Geo list example - Australia-only.
   - name: "geo-australia"
     description: "A list of all IP ranges allocated to Australia."
+    dedupe: "radix" # Use IP-specific deduplication and validation
     sources:
       - url: https://github.com/inet-ip-info/WorldIPv4Map/releases/latest/download/all-ipv4cidr.tsv.gz
         format: "inet-ip-info-geo" # Custom format to parse inet-ip-info TSV files
@@ -14,6 +36,7 @@ lists: # A list of lists to generate
   - name: "blackhole"
     description: "A list of known ad/tracker/malware domains."
     exclude: [] # A list of domains to exclude from the final list. Like a whitelist.
+    dedupe: "radix" # Use IP-specific deduplication and validation
     sources:
       - url: https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt
         format: "hostlist"
@@ -25,7 +48,8 @@ lists: # A list of lists to generate
   # Same as above but excludes private IP ranges. Useful for outbound filtering.
   - name: "blackhole-exclude-private"
     description: "A list of known ad/tracker/malware domains."
-    exclude: [10.0.0.0/8, 100.64.0.0/10, 172.16.0.0/12, 192.168.0.0/16, 198.18.0.0/15]
+    exclude: "private-ip" # Make sure anything in the private-ip list is excluded from this one.
+    dedupe: "radix" # Use IP-specific deduplication and validation
     sources:
       - url: https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt
         format: "hostlist"
@@ -33,3 +57,22 @@ lists: # A list of lists to generate
         format: "spamhaus-json"
       - url: https://www.spamhaus.org/drop/drop_v6.json
         format: "spamhaus-json"
+
+  - name: "dns-sinkhole"
+    description: "A list of known suspicous and/or malicious domains."
+    exclude: "dns-whitelist" # Make sure anything in the dns-whitelist list is excluded from this one.
+    dedupe: "domain" # Reverse prefix tree deduplication and validation
+    output_format: "rpz" # Suitable for knot etc.
+    sources:
+      # Talos Threats - should block malware, scams, etc.
+      - url: https://raw.githubusercontent.com/mike-trewartha/Pi-hole-Talos-Threat-Blocklist/refs/heads/main/talos-threats.list
+        format: "hostlist"
+      # Threat Intelligence Feed Aggregation
+      - url: https://gitlab.com/hagezi/mirror/-/raw/main/dns-blocklists/wildcard/tif.medium.txt
+        format: "hostlist"
+      # Sane default - should block ads, trackers, malware, scams, etc.
+      - url: https://gitlab.com/hagezi/mirror/-/raw/main/dns-blocklists/domains/pro.txt
+        format: "hostlist"
+      # Exclude fake sites
+      - url: https://gitlab.com/hagezi/mirror/-/raw/main/dns-blocklists/wildcard/fake.txt
+        format: "hostlist"
