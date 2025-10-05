@@ -1,3 +1,22 @@
 # Ensure core services and our blocklists are accessible.
 github.com
 raw.githubusercontent.com
+
+# Hulu sucks.
+*.hulustream.com
+hulustream.com
+*.hulu.com
+dpm.demdex.net
+cws-hulu.conviva.com
+cws.conviva.com
+unagi-na.amazon.com
+device-metrics-us-2.amazon.com
+tvx.adgrx.com
+cdn-stv.adgrx.com
+rtb.adgrx.com
+secure-us.imrworldwide.com
+beacons.extremereach.io
+video.adsafeprotected.com
+secure-gl.imrworldwide.com
+s.innovid.com
+rtr.innovid.com
