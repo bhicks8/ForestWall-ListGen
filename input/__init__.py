@@ -5,7 +5,10 @@ Helper that fetches and parses input files and yields lines one by one.
 import json
 
 def parse_hostlist(lines, opts):
-    return [line.strip() for line in lines if line and not line.startswith('#')]
+   return [line.strip() for line in lines if line and not line.startswith('#')]
+
+def parse_hostfile(lines, opts):
+   return [line.split()[1] for line in lines if line and not line.startswith('#') and len(line.split()) > 1]
 
 def parse_spamhaus_json(lines, opts):
     data = [json.loads(line) for line in lines if line]
@@ -28,6 +31,8 @@ def get_parse(strategy):
 
     if strategy == 'hostlist':
         return parse_hostlist
+    elif strategy == 'hostfile':
+        return parse_hostfile
     elif strategy == 'spamhaus-json':
         return parse_spamhaus_json
     elif strategy == 'inet-ip-info-geo':
