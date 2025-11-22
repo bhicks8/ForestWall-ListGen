@@ -76,3 +76,16 @@ lists: # A list of lists to generate
       # Exclude fake sites
       - url: https://gitlab.com/hagezi/mirror/-/raw/main/dns-blocklists/wildcard/fake.txt
         format: "hostlist"
+      # Block adult content
+      - url: https://github.com/columndeeply/hosts/raw/refs/heads/main/hosts00
+        format: "hostlist"
+      - url: https://github.com/columndeeply/hosts/raw/refs/heads/main/hosts01
+        format: "hostlist"
+      - url: https://github.com/columndeeply/hosts/raw/refs/heads/main/hosts02
+        format: "hostlist"
+      - url: https://github.com/columndeeply/hosts/raw/refs/heads/main/hosts03
+        format: "hostlist"
+      - url: https://github.com/columndeeply/hosts/raw/refs/heads/main/hosts04
+        format: "hostlist"
+      - url: https://github.com/columndeeply/hosts/raw/refs/heads/main/hosts05
+        format: "hostlist"
