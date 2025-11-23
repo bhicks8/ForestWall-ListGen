@@ -62,14 +62,31 @@ This tool pre-generates consolidated, deduplicated blocklists from multiple thre
 
 #### GitHub / DevOps
 
-This repo includes workflow that runs `generate.py` and stores resulting lists in `lists/*.txt`. Each line in each file holds a valid CIDR.
+This repo includes a GitHub Actions workflow that runs `generate.py` and uploads the resulting lists to a Cloudflare R2 bucket. Each line in each file holds a valid CIDR or domain.
 
-You may:
+**Configuration Requirements:**
 
-1. Link to the provided lists, if they suite your needs.
-2. Fork the repository to modify `lists.yaml` and either:
-    1. Leverage the workflow capability to generate and add your lists.
-    2. Remove the workflow, and publish to a web host of your choice using CI/CD.
+To use the automated workflow, you need to set up the following GitHub repository secrets:
+
+- `R2_ACCESS_KEY_ID`: Your Cloudflare R2 Access Key ID
+- `R2_SECRET_ACCESS_KEY`: Your Cloudflare R2 Secret Access Key  
+- `R2_ACCOUNT_ID`: Your Cloudflare Account ID
+- `R2_BUCKET_NAME`: The name of your R2 bucket
+
+**Workflow Behavior:**
+
+1. The workflow runs automatically twice daily (1 AM and 8 PM UTC)
+2. It can also be triggered manually via the Actions tab
+3. Lists are generated from sources defined in `lists.yaml`
+4. Generated lists are uploaded to R2 at `s3://{bucket}/lists/`
+5. Old files in R2 are removed if they no longer exist in the generated set
+
+**For Forked Repositories:**
+
+1. Fork this repository
+2. Modify `lists.yaml` to suit your needs
+3. Configure the required R2 secrets in your repository settings
+4. The workflow will automatically run and upload to your R2 bucket
 
 #### Command Line
 
@@ -87,16 +104,32 @@ This reads the configuration from `lists.yaml` and outputs generated list files 
 
 ### Using the lists
 
+Lists are automatically uploaded to Cloudflare R2 and can be accessed via R2's public URL or through a custom domain if configured.
+
+**Accessing Lists:**
+
+If you've configured R2 with a public domain, your lists will be available at:
+```
+https://your-domain.com/lists/{list-name}.txt
+```
+
+For example:
+```
+https://your-domain.com/lists/blackhole.ipv4.txt
+https://your-domain.com/lists/dns-sinkhole.rpz
+```
+
 #### ForestWall
 
 > **TODO:** Validate this section once ForestWall is further along.
 
 1. Update `/etc/conf.d/forestwall/nft-lists.conf` with a mapping of nftables set => list URL.
-2. Ensure you have a `/etc/periodic/daily.d/load-nftlists.sh` script (included by default).
+2. Point to your R2-hosted lists (e.g., `https://your-domain.com/lists/blackhole.ipv4.txt`)
+3. Ensure you have a `/etc/periodic/daily.d/load-nftlists.sh` script (included by default).
 
 #### Other Firewalls
 
-The resulting lists are likely compatible with other platforms like OpnSense, etc. Just point them at the files under `lists/`.
+The resulting lists are compatible with other platforms like OpnSense, pfSense, etc. Just point them at your R2-hosted list URLs.
 
 ## Configuration
 

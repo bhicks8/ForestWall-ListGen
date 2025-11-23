@@ -38,6 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install awscli
       
       - name: Create lists directory
         run: mkdir -p lists
@@ -48,21 +49,27 @@ jobs:
       - name: Verify 10% drift limit
         run: python verify.py lists 10.0 ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.allow_deletions || 'false' }}
 
-      - name: Check for changes
-        id: check_changes
+      - name: Configure AWS CLI for Cloudflare R2
+        if: github.ref == 'refs/heads/main'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
         run: |
-          git add lists/
-          if git diff --staged --quiet; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Commit and push changes
-        if: steps.check_changes.outputs.changed == 'true'
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          aws configure set region $AWS_DEFAULT_REGION
+
+      - name: Upload lists to Cloudflare R2
+        if: github.ref == 'refs/heads/main'
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add lists/
-          git commit -m "Update blocklists - $(date -u +'%Y-%m-%d %H:%M UTC')"
-          git push
+          # Upload all generated list files to R2
+          aws s3 sync lists/ s3://$R2_BUCKET_NAME/lists/ \
+            --endpoint-url https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com \
+            --exclude "*.git*" \
+            --delete
+          
+          echo "Successfully uploaded blocklists to R2 bucket: $R2_BUCKET_NAME"

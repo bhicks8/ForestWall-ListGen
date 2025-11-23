@@ -37,11 +37,16 @@ def percent_change(old: int, new: int) -> float:
     return ((new - old) / old) * 100.0
 
 def tracked_lists_in_head(path: str):
-    output = subprocess.check_output(
-        ["git", "ls-tree", "--name-only", "HEAD", path + "/"],
-        text=True,
-    )
-    return {line.strip() for line in output.splitlines() if line.strip().endswith(".txt")}
+    try:
+        output = subprocess.check_output(
+            ["git", "ls-tree", "--name-only", "HEAD", path + "/"],
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+        return {line.strip() for line in output.splitlines() if line.strip().endswith(".txt")}
+    except subprocess.CalledProcessError:
+        # Directory doesn't exist in HEAD (e.g., lists not tracked in git)
+        return set()
 
 def passes_delete_check(base_path, files, allowed: bool) -> bool:
     head_files = set(normalize_paths(tracked_lists_in_head(base_path), "."))
@@ -49,12 +54,13 @@ def passes_delete_check(base_path, files, allowed: bool) -> bool:
     # since glob.glob should return normalized paths, but just in case.
     current_files = set(normalize_paths(files, "."))
 
-    for f in head_files - current_files:
-        print(f"{f}: Deleted")
+    deleted_files = head_files - current_files
+    if deleted_files:
+        for f in deleted_files:
+            print(f"{f}: Deleted")
         if not allowed:
             print("File deletions are not allowed.")
             return False
-    if (allowed):
         print("File deletions are allowed.")
     
     return True
@@ -66,6 +72,7 @@ def main(base_path: str, threshold: float, allow_delete: bool) -> int:
         return 1
 
     violations = []
+    checked_count = 0
     for path in files:
         new_lines = sum(1 for _ in open(path, encoding="utf-8"))
         old_lines = old_line_count(path)
@@ -75,16 +82,20 @@ def main(base_path: str, threshold: float, allow_delete: bool) -> int:
         pct = percent_change(old_lines, new_lines)
         if abs(pct) > threshold:
             violations.append((path, old_lines, new_lines, pct))
+        else:
+            checked_count += 1
+            print(f"{path}: {old_lines} → {new_lines} lines ({pct:+.2f}% change) - OK")
 
     if violations:
+        print(f"\nFound {len(violations)} file(s) exceeding ±{threshold:.1f}% threshold:")
         for path, old_lines, new_lines, pct in violations:
             print(
-                f"{path}: {old_lines} → {new_lines} lines "
-                f"({pct:+.2f}% change) exceeds ±{threshold:.1f}% threshold"
+                f"  {path}: {old_lines} → {new_lines} lines "
+                f"({pct:+.2f}% change)"
             )
         return 1
 
-    print(f"All list changes within ±{threshold:.1f}%.")
+    print(f"\nAll {checked_count} list changes within ±{threshold:.1f}%.")
     return 0
 
 if __name__ == "__main__":
