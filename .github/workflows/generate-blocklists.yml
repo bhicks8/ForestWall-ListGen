@@ -49,27 +49,20 @@ jobs:
       - name: Verify 10% drift limit
         run: python verify.py lists 10.0 ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.allow_deletions || 'false' }}
 
-      - name: Configure AWS CLI for Cloudflare R2
+      - name: Upload lists to Cloudflare R2
         if: github.ref == 'refs/heads/main'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          aws configure set region $AWS_DEFAULT_REGION
-
-      - name: Upload lists to Cloudflare R2
-        if: github.ref == 'refs/heads/main'
-        env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
         run: |
           # Upload all generated list files to R2
+          echo "Uploading blocklists to R2 bucket: $R2_BUCKET_NAME"
           aws s3 sync lists/ s3://$R2_BUCKET_NAME/lists/ \
             --endpoint-url https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com \
             --exclude "*.git*" \
-            --delete
+            --delete \
+            --debug 2>&1 | grep -E '(upload|delete):' || true
           
-          echo "Successfully uploaded blocklists to R2 bucket: $R2_BUCKET_NAME"
+          echo "Successfully uploaded blocklists to R2"
