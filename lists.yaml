@@ -63,6 +63,8 @@ lists: # A list of lists to generate
     exclude: "dns-whitelist" # Make sure anything in the dns-whitelist list is excluded from this one.
     dedupe: "domain" # Reverse prefix tree deduplication and validation
     output_format: "rpz" # Suitable for knot etc.
+    output_options:
+      block_subdomains: false
     sources:
       # Talos Threats - should block malware, scams, etc.
       - url: https://raw.githubusercontent.com/mike-trewartha/Pi-hole-Talos-Threat-Blocklist/refs/heads/main/talos-threats.list
