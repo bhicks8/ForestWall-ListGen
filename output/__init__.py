@@ -4,6 +4,12 @@ Helper to get an output function to write lists to a file format.
 
 import os
 
+def extract_hostname(item):
+    hostname = item.split('://', 1)[-1]  # Remove scheme
+    hostname = hostname.split(':', 1)[0]  # Remove port
+    hostname = hostname.split('/', 1)[0]  # Remove path
+    return hostname
+
 def write_lines(file, content):
     with open(file, 'w') as f:
         for line in content:
@@ -32,7 +38,7 @@ def rpz_file(output_path, output_name, combined_list, opts):
     path = output_path + "/" + output_name + ".rpz"
 
     combined_list = sorted(combined_list)
-    rpz_lines = [f"{item} CNAME ." for item in combined_list]
+    rpz_lines = [f"{extract_hostname(item)} CNAME ." for item in combined_list]
 
     if (opts.get('block_subdomains', False)):
         rpz_lines += [f"*.{item} CNAME ." for item in combined_list]
