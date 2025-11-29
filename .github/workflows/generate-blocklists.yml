@@ -11,6 +11,11 @@ on:
         required: false
         default: 'false'
         type: string
+      skip_verify:
+        description: 'Skip the 10% drift limit verification step'
+        required: false
+        default: 'false'
+        type: string
   push:
     branches:
       - main
@@ -44,6 +49,7 @@ jobs:
         run: python generate.py lists.yaml lists
 
       - name: Verify 10% drift limit
+        if: ${{ !(github.event_name == 'workflow_dispatch' && github.event.inputs.skip_verify == 'true') }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
