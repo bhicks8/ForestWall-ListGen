@@ -36,9 +36,7 @@ jobs:
           python-version: '3.x'
       
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install awscli
+        run: pip install -r requirements.txt
       
       - name: Create lists directory
         run: mkdir -p lists
