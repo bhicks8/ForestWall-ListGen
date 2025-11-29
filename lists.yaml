@@ -85,3 +85,5 @@ lists: # A list of lists to generate
         format: "hostfile"
       - url: https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/nsfw.txt
         format: "hostlist"
+      - url: https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/nsfw-onlydomains.txt
+        format: "hostlist"
