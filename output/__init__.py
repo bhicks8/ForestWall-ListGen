@@ -37,10 +37,10 @@ def hostlist_per_family(output_path, output_name, combined_list, opts):
 def rpz_file(output_path, output_name, combined_list, opts):
     path = output_path + "/" + output_name + ".rpz"
 
-    combined_list = sorted(combined_list)
-    rpz_lines = [f"{extract_hostname(item)} CNAME ." for item in combined_list]
+    combined_list = sorted(extract_hostname(item) for item in combined_list)
+    rpz_lines = [f"{item} CNAME ." for item in combined_list]
 
-    if (opts.get('block_subdomains', False)):
+    if opts.get('block_subdomains', False) == True:
         rpz_lines += [f"*.{item} CNAME ." for item in combined_list]
 
     if (len(rpz_lines) > 0):
