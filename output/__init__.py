@@ -10,6 +10,11 @@ def extract_hostname(item):
     hostname = hostname.split('/', 1)[0]  # Remove path
     # Remove invalid chars
     hostname = ''.join(c for c in hostname if c.isalnum() or c in '.-')
+    
+    # Ensure leading dots are treated like wildcard match
+    if hostname.startswith('.'):
+        hostname = '*' + hostname
+    
     return hostname
 
 def write_lines(file, content):
