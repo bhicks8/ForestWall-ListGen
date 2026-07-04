@@ -204,10 +204,17 @@ def build_list(name, dedupe_strategy, sources):
         compression = source.get('compression', 'none')
         format_type = source.get('format', 'hostlist')
         format_options = source.get('format_options', {})
-        
-        entries = fetch_and_parse_source(url, compression, format_type, format_options)
+
+        try:
+            entries = fetch_and_parse_source(url, compression, format_type, format_options)
+        except (requests.RequestException, FileNotFoundError) as e:
+            display_url = url if len(url) < 70 else url[:67] + '...'
+            Logger.info(f"[{idx}/{len(sources)}] Skipped {display_url}", indent=True)
+            Logger.detail('Reason', str(e), indent=True)
+            continue
+
         deduplicator.addMany(entries)
-        
+
         # Truncate long URLs for display
         display_url = url if len(url) < 70 else url[:67] + '...'
         Logger.info(f"[{idx}/{len(sources)}] {display_url}", indent=True)
