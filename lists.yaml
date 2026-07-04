@@ -73,7 +73,7 @@ lists: # A list of lists to generate
       - url: https://gitlab.com/hagezi/mirror/-/raw/main/dns-blocklists/wildcard/tif.medium.txt
         format: "hostlist"
       # Sane default - should block ads, trackers, malware, scams, etc.
-      - url: https://gitlab.com/hagezi/mirror/-/raw/main/dns-blocklists/domains/pro.txt
+      - url: https://gitlab.com/hagezi/mirror/-/raw/main/dns-blocklists/wildcard/pro.txt
         format: "hostlist"
       # Exclude fake sites
       - url: https://gitlab.com/hagezi/mirror/-/raw/main/dns-blocklists/wildcard/fake.txt
